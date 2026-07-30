@@ -1,1 +1,5 @@
-window.AZURE_HERO_FIXED='./assets/hero-mediterranean.svg?v=20260730-0918';
+window.AZURE_HERO_PARTS=[
+  './assets/azure-approved-640-part0.txt?v=20260730-1008',
+  './assets/azure-approved-640-part1.txt?v=20260730-1008',
+  './assets/azure-approved-640-part2.txt?v=20260730-1008'
+];
