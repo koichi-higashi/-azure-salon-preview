@@ -1,4 +1,4 @@
-window.AZURE_HERO_FIXED='https://freepics.ai/public/uploads/thumbnail/architecture-this-professionally-captured-photograph-is-a-breathtak-e68ffe10-34d5-477b-86c8-bfd400095146-121692387588pwkrqaaszp.jpeg';
+window.AZURE_HERO_FIXED='./assets/hero-final.jpg?v=20260730-1400';
 window.AZURE_HERO_PARTS=[];
 
 document.addEventListener('DOMContentLoaded',()=>{
