@@ -9,7 +9,6 @@
 <style>
 *{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#eef6fb}body{font-family:-apple-system,BlinkMacSystemFont,"Yu Gothic",sans-serif}.preview{width:min(1491px,100%);margin:0 auto;background:#fff;min-height:100vh;box-shadow:0 10px 40px rgba(5,52,91,.12)}.preview img{display:block;width:100%;height:auto}.loading,.error{min-height:100vh;display:grid;place-items:center;padding:32px;color:#073f73;text-align:center;line-height:1.8}.error{display:none}.back{position:fixed;z-index:5;left:12px;top:12px;display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 14px;border-radius:999px;background:rgba(255,255,255,.94);border:1px solid #d6e6ed;color:#0d6897;text-decoration:none;font-size:12px;font-weight:700;box-shadow:0 8px 24px rgba(5,52,91,.12)}@media(max-width:600px){.preview{box-shadow:none}.back{top:max(10px,env(safe-area-inset-top));left:10px}}
 </style>
-<script src="../design-part-0.js?v=20260801-1512"></script>
 </head>
 <body>
 <a class="back" href="../owner/">← 確認ページへ戻る</a>
@@ -19,15 +18,27 @@
 <img id="design" alt="hair resort by AZURE ホームページ完成デザイン" hidden>
 </main>
 <script>
-(function(){
+(async function(){
  const image=document.getElementById('design');
  const loading=document.getElementById('loading');
  const error=document.getElementById('error');
- const data=window.__AZURE_DESIGN||'';
- if(!data){loading.style.display='none';error.style.display='grid';return;}
- image.onload=function(){loading.style.display='none';image.hidden=false;};
- image.onerror=function(){loading.style.display='none';error.style.display='grid';};
- image.src='data:image/webp;base64,'+data;
+ function fail(){loading.style.display='none';error.style.display='grid'}
+ try{
+   const response=await fetch('../design-part-0.js?v=20260801-1518',{cache:'no-store'});
+   if(!response.ok)throw new Error('asset '+response.status);
+   const source=await response.text();
+   const start=source.indexOf('+"');
+   const end=source.lastIndexOf('";');
+   if(start<0||end<=start)throw new Error('invalid asset');
+   const base64=source.slice(start+2,end);
+   const binary=atob(base64);
+   const bytes=new Uint8Array(binary.length);
+   for(let i=0;i<binary.length;i++)bytes[i]=binary.charCodeAt(i);
+   const url=URL.createObjectURL(new Blob([bytes],{type:'image/webp'}));
+   image.onload=function(){loading.style.display='none';image.hidden=false;URL.revokeObjectURL(url)};
+   image.onerror=fail;
+   image.src=url;
+ }catch(e){console.error(e);fail()}
 })();
 </script>
 </body>
