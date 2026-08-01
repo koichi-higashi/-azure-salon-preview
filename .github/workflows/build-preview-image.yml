@@ -1,0 +1,50 @@
+name: Build AZURE preview image
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "design-part-0.js"
+      - ".github/workflows/build-preview-image.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Decode preview image
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import base64, re
+
+          source = Path('design-part-0.js').read_text(encoding='utf-8')
+          chunks = re.findall(r'\+"([A-Za-z0-9+/=]+)"', source)
+          if not chunks:
+              raise SystemExit('No base64 image data found')
+          data = base64.b64decode(''.join(chunks), validate=True)
+          if not (data.startswith(b'RIFF') and b'WEBP' in data[:16]):
+              raise SystemExit('Decoded data is not a valid WebP header')
+          out = Path('preview/azure-design.webp')
+          out.parent.mkdir(parents=True, exist_ok=True)
+          out.write_bytes(data)
+          print(f'Wrote {out} ({len(data)} bytes)')
+          PY
+
+      - name: Commit generated image
+        run: |
+          if git diff --quiet -- preview/azure-design.webp; then
+            echo "No image change"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add preview/azure-design.webp
+          git commit -m "build: generate Safari-compatible AZURE preview image"
+          git push
